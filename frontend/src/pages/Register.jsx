@@ -1,10 +1,43 @@
 
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { apiRequest } from '../services/api'
 import './Register.css'
 
 function Register() {
-  const handleSubmit = (event) => {
+  const navigate = useNavigate()
+
+  const [errors, setErrors] = useState([])
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (event) => {
     event.preventDefault()
-    // API connection will be added in the next stage.
+
+    setErrors([])
+    setLoading(true)
+
+    const formData = new FormData(event.currentTarget)
+
+    const userData = {
+      name: formData.get('name'),
+      email: formData.get('email'),
+      password: formData.get('password'),
+      password_confirmation: formData.get('password_confirmation'),
+    }
+
+    try {
+      await apiRequest('/register', 'POST', userData)
+
+      navigate('/login')
+    } catch (error) {
+      if (error.errors) {
+        setErrors(Object.values(error.errors).flat())
+      } else {
+        setErrors([error.message || 'Registration failed. Please try again.'])
+      }
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -21,6 +54,14 @@ function Register() {
         </div>
 
         <form onSubmit={handleSubmit}>
+          {errors.length > 0 && (
+            <div className="error-message">
+              {errors.map((error, index) => (
+                <p key={index}>{error}</p>
+              ))}
+            </div>
+          )}
+
           <div className="form-group">
             <label htmlFor="name">Full Name</label>
             <input
@@ -54,13 +95,28 @@ function Register() {
             />
           </div>
 
-          <button type="submit" className="auth-button">
-            Create Account
+          <div className="form-group">
+            <label htmlFor="password_confirmation">Confirm Password</label>
+            <input
+              id="password_confirmation"
+              name="password_confirmation"
+              type="password"
+              placeholder="Confirm your password"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="auth-button"
+            disabled={loading}
+          >
+            {loading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
 
         <p className="auth-footer">
-          Already have an account? <a href="/login">Log in</a>
+          Already have an account? <Link to="/login">Log in</Link>
         </p>
       </section>
     </main>

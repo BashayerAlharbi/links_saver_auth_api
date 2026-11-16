@@ -133,3 +133,23 @@
     padding: 28px 22px;
   }
 }
+
+
+.error-message {
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border: 1px solid #f3b7b7;
+  border-radius: 8px;
+  background: #fff1f1;
+  color: #c62828;
+  font-size: 13px;
+}
+
+.error-message p {
+  margin: 4px 0;
+}
+
+.auth-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

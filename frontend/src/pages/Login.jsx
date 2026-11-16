@@ -1,10 +1,43 @@
 
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { apiRequest } from '../services/api'
 import './Login.css'
 
 function Login() {
-  const handleSubmit = (event) => {
+  const navigate = useNavigate()
+
+  const [errors, setErrors] = useState([])
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (event) => {
     event.preventDefault()
-    // API connection will be added later.
+
+    setErrors([])
+    setLoading(true)
+
+    const formData = new FormData(event.currentTarget)
+
+    const loginData = {
+      email: formData.get('email'),
+      password: formData.get('password'),
+    }
+
+    try {
+      const result = await apiRequest('/login', 'POST', loginData)
+
+      localStorage.setItem('token', result.token)
+
+      navigate('/dashboard')
+    } catch (error) {
+      if (error.errors) {
+        setErrors(Object.values(error.errors).flat())
+      } else {
+        setErrors([error.message || 'Invalid email or password.'])
+      }
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -21,6 +54,14 @@ function Login() {
         </div>
 
         <form onSubmit={handleSubmit}>
+          {errors.length > 0 && (
+            <div className="error-message">
+              {errors.map((error, index) => (
+                <p key={index}>{error}</p>
+              ))}
+            </div>
+          )}
+
           <div className="form-group">
             <label htmlFor="email">Email Address</label>
             <input
@@ -43,13 +84,17 @@ function Login() {
             />
           </div>
 
-          <button type="submit" className="auth-button">
-            Log In
+          <button
+            type="submit"
+            className="auth-button"
+            disabled={loading}
+          >
+            {loading ? 'Logging In...' : 'Log In'}
           </button>
         </form>
 
         <p className="auth-footer">
-          Don't have an account? <a href="/register">Create an account</a>
+          Don't have an account? <Link to="/register">Create an account</Link>
         </p>
       </section>
     </main>
