@@ -26,6 +26,10 @@ function Login() {
     try {
       const result = await apiRequest('/login', 'POST', loginData)
 
+      if (!result?.token) {
+         throw new Error('Login failed: Authentication token was not received.')
+      }
+
       localStorage.setItem('token', result.token)
 
       navigate('/dashboard')

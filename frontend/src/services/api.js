@@ -11,16 +11,41 @@ export async function apiRequest(endpoint, method = 'GET', data = null, token = 
     headers.Authorization = `Bearer ${token}`
   }
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    method,
-    headers,
-    body: data ? JSON.stringify(data) : null,
-  })
+  let response
 
-  const result = await response.json()
+  try {
+    response = await fetch(`${API_URL}${endpoint}`, {
+      method,
+      headers,
+      body: data ? JSON.stringify(data) : null,
+    })
+  } catch {
+    throw {
+      message: 'Unable to connect to the server. Please try again.',
+    }
+  }
+
+  const responseText = await response.text()
+  let result = null
+
+  if (responseText) {
+    try {
+      result = JSON.parse(responseText)
+    } catch {
+      result = { message: responseText }
+    }
+  }
 
   if (!response.ok) {
-    throw result
+    if (response.status === 401 && token) {
+      localStorage.removeItem('token')
+    }
+
+    throw {
+      ...(result || {}),
+      status: response.status,
+      message: result?.message || 'Something went wrong. Please try again.',
+    }
   }
 
   return result

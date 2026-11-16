@@ -26,10 +26,14 @@ function Register() {
     }
 
     try {
-      await apiRequest('/register', 'POST', userData)
+      const result = await apiRequest('/register', 'POST', userData)
+
+      if (!result?.user) {
+         throw new Error('Registration failed. Please try again.')
+      }
 
       navigate('/login')
-    } catch (error) {
+   } catch (error) {
       if (error.errors) {
         setErrors(Object.values(error.errors).flat())
       } else {

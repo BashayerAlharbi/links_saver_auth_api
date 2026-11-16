@@ -2,13 +2,14 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiRequest } from '../services/api'
-import '../pages/Register.css'
+import './Register.css'
 
 function Dashboard() {
   const navigate = useNavigate()
 
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -18,8 +19,14 @@ function Dashboard() {
         const result = await apiRequest('/user', 'GET', null, token)
         setUser(result)
       } catch (error) {
-        localStorage.removeItem('token')
-        navigate('/login')
+        if (error.status === 401) {
+          localStorage.removeItem('token')
+          navigate('/login')
+        } else {
+          setErrorMessage(
+           error.message || 'Unable to load your account. Please try again.'
+         )
+        }
       } finally {
         setLoading(false)
       }
@@ -53,11 +60,19 @@ function Dashboard() {
           <h1>Links Saver</h1>
         </div>
 
-        <div className="auth-heading">
-          <h2>Welcome, {user?.name}!</h2>
-          <p>You are successfully logged in.</p>
-          <p>{user?.email}</p>
+       {errorMessage && (
+        <div className="error-message">
+          <p>{errorMessage}</p>
         </div>
+       )}
+
+        {user && (
+         <div className="auth-heading">
+          <h2>Welcome, {user.name}!</h2>
+          <p>You are successfully logged in.</p>
+          <p>{user.email}</p>
+         </div>
+        )}
 
         <button
           onClick={handleLogout}
