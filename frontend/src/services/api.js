@@ -1,5 +1,5 @@
 
-const API_URL = 'const API_URL = 'https://linkssaverauthapi-production.up.railway.app/api'
+const API_URL = 'https://linkssaverauthapi-production.up.railway.app/api'
 
 export async function apiRequest(endpoint, method = 'GET', data = null, token = null) {
   const headers = {
