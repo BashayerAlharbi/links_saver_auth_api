@@ -1,5 +1,4 @@
-
-const API_URL = 'https://linkssaverauthapi-production.up.railway.app/api'
+const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'
 
 export async function apiRequest(endpoint, method = 'GET', data = null, token = null) {
   const headers = {
