@@ -34,7 +34,7 @@ function Dashboard() {
           apiRequest('/links', 'GET', null, token),
         ])
 
-        setUser(userResult)
+        setUser(userResult.user)
         setLinks(linksResult.data || [])
       } catch (error) {
         if (error.status === 401) {
